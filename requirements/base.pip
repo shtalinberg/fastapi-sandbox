@@ -1,0 +1,31 @@
+# Base dependencies for FastAPI REST API service
+# Python 3.13 compatible versions - Updated October 2025
+
+# FastAPI and related
+fastapi==0.118.1
+uvicorn==0.37.0
+pydantic==2.11.7
+pydantic_core==2.33.2
+pydantic-settings==2.10.1
+
+# Database & ORM
+sqlalchemy==2.0.43
+psycopg[binary]==3.2.10
+alembic==1.16.5
+
+# Authentication & Security
+PyJWT==2.10.1
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.20
+
+# Background tasks & Cache
+celery==5.5.3
+redis==6.4.0
+
+# HTTP client for external API calls
+httpx==0.28.1
+
+# Utilities
+python-dateutil==2.9.0.post0
+email-validator==2.3.0
+sentry-sdk[fastapi]==2.35.0

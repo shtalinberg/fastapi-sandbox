@@ -1,0 +1,11 @@
+aiosqlite==0.21.0
+pytest==8.4.1
+pytest-asyncio==1.1.0
+pytest-celery==1.2.1
+pytest-cov==6.2.1
+httpx==0.28.1  # For testing async HTTP requests
+factory-boy==3.3.2  # For creating test data
+faker==37.11.0  # For generating fake data
+
+# Database testing
+# pytest-postgresql>=6.1.0
