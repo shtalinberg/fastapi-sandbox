@@ -579,6 +579,7 @@ spelling-dict=
 # appear at the beginning of a comment and should not be checked.
 spelling-ignore-comment-directives=fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:
 
+
 # List of comma separated words that should not be checked.
 spelling-ignore-words=
 

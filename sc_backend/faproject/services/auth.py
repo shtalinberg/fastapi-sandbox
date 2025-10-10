@@ -1,6 +1,7 @@
 """
 Authentication utilities for password hashing and JWT token management.
 """
+
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -29,20 +30,24 @@ class PasswordManager:
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
-        """Verify a plain password against its hash."""
+        """Verify a plain password against its hash. Return False if hash is invalid."""
         password_bytes = plain_password.encode('utf-8')
         if len(password_bytes) > 72:
             password_bytes = password_bytes[:72]
 
         hashed_bytes = hashed_password.encode('utf-8')
-        return bcrypt.checkpw(password_bytes, hashed_bytes)
+        try:
+            return bcrypt.checkpw(password_bytes, hashed_bytes)
+        except Exception:
+            return False
+
+
 class JWTManager:
     """Utility class for JWT token creation and validation."""
 
     @staticmethod
     def create_access_token(
-        data: dict,
-        expires_delta: Optional[timedelta] = None
+        data: dict, expires_delta: Optional[timedelta] = None
     ) -> str:
         """Create a JWT access token."""
         to_encode = data.copy()
@@ -55,43 +60,33 @@ class JWTManager:
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             )
 
-        to_encode.update({
-            "exp": expire,
-            "iat": datetime.now(timezone.utc)
-        })
+        to_encode.update({"exp": expire, "iat": datetime.now(timezone.utc)})
 
         # Create the token
         encoded_jwt = jwt.encode(
-            to_encode,
-            settings.SECRET_KEY,
-            algorithm=settings.ALGORITHM
+            to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
         )
 
         return encoded_jwt
 
     @staticmethod
     def verify_token(token: str) -> Optional[TokenPayload]:
-        """Verify and decode a JWT token."""
+        """Verify and decode a JWT token. Return None if invalid."""
         try:
             payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=[settings.ALGORITHM]
+                token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
             )
-
-            # Validate payload structure
             if payload.get("sub") is None:
                 return None
-
+            # Provide default values for optional fields
             return TokenPayload(
                 sub=payload.get("sub"),
-                email=payload.get("email"),
-                role=payload.get("role"),
-                exp=payload.get("exp"),
-                iat=payload.get("iat")
+                email=payload.get("email") or "",
+                role=payload.get("role") or "",
+                exp=int(payload.get("exp")) if payload.get("exp") is not None else None,
+                iat=int(payload.get("iat")) if payload.get("iat") is not None else None,
             )
-
-        except jwt.PyJWTError:
+        except Exception:
             return None
 
     @staticmethod
@@ -112,17 +107,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def create_access_token(
-    user_id: int,
-    email: str,
-    role: str,
-    expires_delta: Optional[timedelta] = None
+    user_id: int, email: str, role: str, expires_delta: Optional[timedelta] = None
 ) -> str:
     """Create an access token for a user."""
-    data = {
-        "sub": str(user_id),
-        "email": email,
-        "role": role
-    }
+    data = {"sub": str(user_id), "email": email, "role": role}
     return JWTManager.create_access_token(data, expires_delta)
 
 

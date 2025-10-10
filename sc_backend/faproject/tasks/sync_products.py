@@ -1,64 +1,27 @@
 """
-Product synchronization tasks.
+Celery task for periodic product sync from external API.
 """
-import httpx
-from celery import current_task
+
+import asyncio
 
 from core.celery_app import celery_app
-from core.config import settings
+from db.database import async_session_maker
+from services.dummyjson_integrator import DummyJsonProductIntegrator
+from services.product_sync import ProductSyncService
+
+SYSTEM_OWNER_ID = 1  # ID користувача-системи (змінити за потреби)
 
 
 @celery_app.task(bind=True, name="tasks.sync_products.sync_products_task")
 def sync_products_task(self):
     """
-    Periodic task to synchronize products from external API.
+    Celery task: синхронізує продукти з dummyjson.com у БД.
     """
-    try:
-        # Update task state
-        current_task.update_state(
-            state="PROGRESS",
-            meta={"message": "Starting product synchronization..."}
-        )
 
-        # Make request to external API
-        with httpx.Client() as client:
-            response = client.get(f"{settings.EXTERNAL_API_URL}/posts", timeout=30)
-            response.raise_for_status()
+    async def _run():
+        async with async_session_maker() as session:
+            integrator = DummyJsonProductIntegrator()
+            service = ProductSyncService(session, integrator, SYSTEM_OWNER_ID)
+            await service.sync_products()
 
-            products_data = response.json()
-
-            # Process products (placeholder logic)
-            processed_count = len(products_data)
-
-            # Update task state
-            current_task.update_state(
-                state="PROGRESS",
-                meta={
-                    "message": f"Processing {processed_count} products...",
-                    "processed": processed_count
-                }
-            )
-
-            # TODO: Save products to database when models are implemented
-
-            return {
-                "status": "success",
-                "message": f"Successfully synchronized {processed_count} products",
-                "processed_count": processed_count
-            }
-
-    except httpx.RequestError as e:
-        # Update task state on error
-        current_task.update_state(
-            state="FAILURE",
-            meta={"message": f"HTTP request failed: {str(e)}"}
-        )
-        raise
-
-    except Exception as e:
-        # Update task state on error
-        current_task.update_state(
-            state="FAILURE",
-            meta={"message": f"Task failed: {str(e)}"}
-        )
-        raise
+    asyncio.run(_run())

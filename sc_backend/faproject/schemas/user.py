@@ -1,6 +1,7 @@
 """
 User-related schemas for API operations.
 """
+
 from datetime import datetime
 from typing import Optional
 
@@ -22,11 +23,10 @@ class UserCreate(UserBase):
         ...,
         min_length=8,
         max_length=128,
-        description="User password (min 8 characters)"
+        description="User password (min 8 characters)",
     )
     role: Optional[UserRole] = Field(
-        default=UserRole.USER,
-        description="User role (admin/user)"
+        default=UserRole.USER, description="User role (admin/user)"
     )
 
 
@@ -62,9 +62,9 @@ class UserPublic(UserBase):
                 "id": 1,
                 "email": "user@example.com",
                 "role": "user",
-                "created_at": "2025-10-08T20:30:00Z"
+                "created_at": "2025-10-08T20:30:00Z",
             }
-        }
+        },
     )
 
 
@@ -84,18 +84,18 @@ class UserList(BaseModel):
                         "id": 1,
                         "email": "admin@example.com",
                         "role": "admin",
-                        "created_at": "2025-10-08T20:30:00Z"
+                        "created_at": "2025-10-08T20:30:00Z",
                     },
                     {
                         "id": 2,
                         "email": "user@example.com",
                         "role": "user",
-                        "created_at": "2025-10-08T20:35:00Z"
-                    }
+                        "created_at": "2025-10-08T20:35:00Z",
+                    },
                 ],
                 "total": 2,
                 "page": 1,
-                "size": 10
+                "size": 10,
             }
         }
     )

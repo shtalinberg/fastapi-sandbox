@@ -1,14 +1,15 @@
 import asyncio
 from logging.config import fileConfig
-from typing import Any
 
-from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context
 from core.config import settings
-from models import Product, User  # Import all models to ensure they're registered
+from models import (  # noqa: F401  # Import all models to ensure they're registered
+    Product,
+    User,
+)
 
 # Import your models and configuration
 from models.base import Base

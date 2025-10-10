@@ -28,8 +28,10 @@ async def create_sample_data():
         # Create admin user
         admin_user = User(
             email="admin@example.com",
-            password="$2b$12$hashed_password_here",  # In real app, this would be properly hashed
-            role=UserRole.ADMIN
+            password=(
+                "$2b$12$hashed_password_here"
+            ),  # In real app, this would be properly hashed
+            role=UserRole.ADMIN,
         )
         session.add(admin_user)
         await session.flush()
@@ -37,8 +39,8 @@ async def create_sample_data():
         # Create regular user
         regular_user = User(
             email="user@example.com",
-            password="$2b$12$hashed_password_here",
-            role=UserRole.USER
+            password=("$2b$12$hashed_password_here"),
+            role=UserRole.USER,
         )
         session.add(regular_user)
         await session.flush()
@@ -53,7 +55,7 @@ async def create_sample_data():
                 height=2.0,
                 length=35.0,
                 depth=25.0,
-                owner_id=admin_user.id
+                owner_id=admin_user.id,
             ),
             Product(
                 title="Wireless Mouse",
@@ -63,7 +65,7 @@ async def create_sample_data():
                 height=4.0,
                 length=12.0,
                 depth=6.0,
-                owner_id=admin_user.id
+                owner_id=admin_user.id,
             ),
             Product(
                 title="Mechanical Keyboard",
@@ -73,8 +75,8 @@ async def create_sample_data():
                 height=3.5,
                 length=45.0,
                 depth=15.0,
-                owner_id=regular_user.id
-            )
+                owner_id=regular_user.id,
+            ),
         ]
 
         for product in products:
@@ -103,16 +105,16 @@ async def show_database_status():
         print(f"  📦 Products: {len(products)}")
 
         for product in products:
-            print(f"    - {product.title} (${product.price}) by user {product.owner_id}")
+            print(
+                f"    - {product.title} (${product.price}) by user {product.owner_id}"
+            )
 
 
 def main():
     """Main CLI interface."""
     parser = argparse.ArgumentParser(description="Database utilities")
     parser.add_argument(
-        "command",
-        choices=["create-sample-data", "status"],
-        help="Command to execute"
+        "command", choices=["create-sample-data", "status"], help="Command to execute"
     )
 
     args = parser.parse_args()

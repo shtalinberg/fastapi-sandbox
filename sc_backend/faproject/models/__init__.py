@@ -11,11 +11,9 @@ from .user import User, UserRole
 __all__ = [
     # Base
     "Base",
-
     # User models
     "User",
     "UserRole",
-
     # Product models
     "Product",
 ]

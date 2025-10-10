@@ -1,6 +1,7 @@
 """
 Authentication and user schemas for request/response validation.
 """
+
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -17,15 +18,12 @@ class UserRegisterRequest(BaseModel):
         ...,
         min_length=8,
         max_length=128,
-        description="User password (min 8 characters)"
+        description="User password (min 8 characters)",
     )
 
     model_config = ConfigDict(
         json_schema_extra={
-            "example": {
-                "email": "user@example.com",
-                "password": "securepassword123"
-            }
+            "example": {"email": "user@example.com", "password": "securepassword123"}
         }
     )
 
@@ -38,10 +36,7 @@ class UserLoginRequest(BaseModel):
 
     model_config = ConfigDict(
         json_schema_extra={
-            "example": {
-                "email": "user@example.com",
-                "password": "securepassword123"
-            }
+            "example": {"email": "user@example.com", "password": "securepassword123"}
         }
     )
 
@@ -57,12 +52,8 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
-            "example": {
-                "id": 1,
-                "email": "user@example.com",
-                "role": "user"
-            }
-        }
+            "example": {"id": 1, "email": "user@example.com", "role": "user"}
+        },
     )
 
 
@@ -80,11 +71,7 @@ class TokenResponse(BaseModel):
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "token_type": "bearer",
                 "expires_in": 1800,
-                "user": {
-                    "id": 1,
-                    "email": "user@example.com",
-                    "role": "user"
-                }
+                "user": {"id": 1, "email": "user@example.com", "role": "user"},
             }
         }
     )
@@ -95,17 +82,14 @@ class PasswordChangeRequest(BaseModel):
 
     current_password: str = Field(..., description="Current password")
     new_password: str = Field(
-        ...,
-        min_length=8,
-        max_length=128,
-        description="New password (min 8 characters)"
+        ..., min_length=8, max_length=128, description="New password (min 8 characters)"
     )
 
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "current_password": "oldpassword123",
-                "new_password": "newsecurepassword456"
+                "new_password": "newsecurepassword456",
             }
         }
     )

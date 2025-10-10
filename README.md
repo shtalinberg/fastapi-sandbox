@@ -49,3 +49,28 @@ repo_root/                     # Project root directory
 │── README.md
 └── Makefile                     # Common commands
 ```
+
+## Continuous Integration (CI)
+
+This project uses GitHub Actions for CI to ensure code quality and type safety on every push and pull request to `main`.
+
+The following checks are run automatically:
+
+| Tool    | Purpose                | Config Source                |
+|---------|------------------------|------------------------------|
+| black   | Code formatting        | pyproject.toml, code-checks.pip |
+| flake8  | Linting (PEP8, errors) | pyproject.toml, code-checks.pip |
+| mypy    | Static type checking   | pyproject.toml, code-checks.pip |
+
+- All jobs run in parallel on Python 3.13.
+- All dependencies for checks are installed from `requirements/code-checks.pip`.
+- Status is visible in the GitHub PR interface.
+
+You can run the same checks locally:
+
+```bash
+pip install -r requirements/code-checks.pip
+black --check sc_backend/faproject
+flake8 sc_backend/faproject
+mypy sc_backend/faproject
+```

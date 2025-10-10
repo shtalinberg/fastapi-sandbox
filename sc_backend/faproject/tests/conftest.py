@@ -8,19 +8,22 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
-from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from core.config import settings
 from dependencies import get_db
 from main import main_app as app
 from models.base import Base
-from models.product import Product  # Імпортуємо всі моделі, щоб SQLAlchemy їх знав
+
+# Імпортуємо всі моделі, щоб SQLAlchemy їх знав
+from models.product import Product  # noqa: F401;
 from models.user import User, UserRole
 from services.auth import PasswordManager
 
 # Test database settings
-TEST_DATABASE_URL = "postgresql+psycopg://fasandbox_user:fasandbox_pass@localhost:5433/fasandbox_db"
+TEST_DATABASE_URL = (
+    "postgresql+psycopg://fasandbox_user:fasandbox_pass@"
+    "fasandbox_postgres:5432/fasandbox_db"
+)
 
 # Create test engine
 test_engine = create_async_engine(
@@ -63,6 +66,8 @@ async def db_session():
     # Clean up - drop all tables after test
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+
 @pytest_asyncio.fixture(scope="function")
 async def client(db_session: AsyncSession):
     """Create a test client with dependency overrides."""
@@ -75,8 +80,7 @@ async def client(db_session: AsyncSession):
 
     # Create the test client
     async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://testserver"
+        transport=ASGITransport(app=app), base_url="http://testserver"
     ) as test_client:
         yield test_client
 
@@ -149,10 +153,7 @@ async def inactive_user(db_session: AsyncSession):
 @pytest_asyncio.fixture
 async def authenticated_user_headers(client: AsyncClient, test_user: User):
     """Get authorization headers for authenticated user."""
-    login_data = {
-        "email": test_user.email,
-        "password": test_user.plain_password
-    }
+    login_data = {"email": test_user.email, "password": test_user.plain_password}
 
     response = await client.post("/api/v1/auth/login", json=login_data)
     assert response.status_code == 200
@@ -166,10 +167,7 @@ async def authenticated_user_headers(client: AsyncClient, test_user: User):
 @pytest_asyncio.fixture
 async def authenticated_admin_headers(client: AsyncClient, test_admin: User):
     """Get authorization headers for authenticated admin."""
-    login_data = {
-        "email": test_admin.email,
-        "password": test_admin.plain_password
-    }
+    login_data = {"email": test_admin.email, "password": test_admin.plain_password}
 
     response = await client.post("/api/v1/auth/login", json=login_data)
     assert response.status_code == 200
@@ -183,10 +181,7 @@ async def authenticated_admin_headers(client: AsyncClient, test_admin: User):
 @pytest.fixture
 def sample_user_data():
     """Sample user registration data."""
-    return {
-        "email": "newuser@example.com",
-        "password": "newpassword123"
-    }
+    return {"email": "newuser@example.com", "password": "newpassword123"}
 
 
 @pytest.fixture
@@ -218,3 +213,17 @@ async def create_multiple_users(db_session: AsyncSession, count: int = 5):
         await db_session.refresh(user)
 
     return users
+
+
+@pytest_asyncio.fixture
+async def admin_token(authenticated_admin_headers):
+    """Повертає лише токен-рядок для admin (без Bearer)."""
+    header = authenticated_admin_headers["Authorization"]
+    return header.split(" ", 1)[1]
+
+
+@pytest_asyncio.fixture
+async def user_token(authenticated_user_headers):
+    """Повертає лише токен-рядок для user (без Bearer)."""
+    header = authenticated_user_headers["Authorization"]
+    return header.split(" ", 1)[1]

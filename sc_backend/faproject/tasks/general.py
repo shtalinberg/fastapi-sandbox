@@ -1,6 +1,7 @@
 """
 General utility tasks.
 """
+
 from core.celery_app import celery_app
 
 
@@ -9,8 +10,4 @@ def test_task(message: str = "Hello from Celery!"):
     """
     Simple test task for debugging.
     """
-    return {
-        "status": "success",
-        "message": message,
-        "task_id": test_task.request.id
-    }
+    return {"status": "success", "message": message, "task_id": test_task.request.id}

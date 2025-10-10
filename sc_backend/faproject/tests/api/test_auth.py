@@ -1,21 +1,11 @@
 """
 Tests for authentication API endpoints.
-
-Based on manual testing scenarios, covering:
-- User registration with validation
-- User login and JWT token generation
-- Password hashing and verification
-- Protected endpoint access
-- Token refresh functionality
-- Edge cases discovered during manual testing
 """
 
 import pytest
 from httpx import AsyncClient
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from models.user import User, UserRole
+from models.user import User
 from services.auth import JWTManager, PasswordManager
 
 
@@ -23,7 +13,9 @@ class TestUserRegistration:
     """Test user registration endpoint."""
 
     @pytest.mark.asyncio
-    async def test_register_new_user_success(self, client: AsyncClient, sample_user_data):
+    async def test_register_new_user_success(
+        self, client: AsyncClient, sample_user_data
+    ):
         """Test successful user registration."""
         response = await client.post("/api/v1/auth/register", json=sample_user_data)
 
@@ -45,7 +37,9 @@ class TestUserRegistration:
         assert "id" in user_data
 
     @pytest.mark.asyncio
-    async def test_register_duplicate_email(self, client: AsyncClient, test_user: User, sample_user_data):
+    async def test_register_duplicate_email(
+        self, client: AsyncClient, test_user: User, sample_user_data
+    ):
         """Test registration with existing email."""
         sample_user_data["email"] = test_user.email
 
@@ -102,10 +96,7 @@ class TestUserLogin:
     @pytest.mark.asyncio
     async def test_login_success(self, client: AsyncClient, test_user: User):
         """Test successful login."""
-        login_data = {
-            "email": test_user.email,
-            "password": test_user.plain_password
-        }
+        login_data = {"email": test_user.email, "password": test_user.plain_password}
 
         response = await client.post("/api/v1/auth/login", json=login_data)
 
@@ -120,10 +111,7 @@ class TestUserLogin:
     @pytest.mark.asyncio
     async def test_login_wrong_password(self, client: AsyncClient, test_user: User):
         """Test login with incorrect password."""
-        login_data = {
-            "email": test_user.email,
-            "password": "wrongpassword"
-        }
+        login_data = {"email": test_user.email, "password": "wrongpassword"}
 
         response = await client.post("/api/v1/auth/login", json=login_data)
 
@@ -134,10 +122,7 @@ class TestUserLogin:
     @pytest.mark.asyncio
     async def test_login_nonexistent_user(self, client: AsyncClient):
         """Test login with non-existent email."""
-        login_data = {
-            "email": "nonexistent@example.com",
-            "password": "somepassword"
-        }
+        login_data = {"email": "nonexistent@example.com", "password": "somepassword"}
 
         response = await client.post("/api/v1/auth/login", json=login_data)
 
@@ -147,10 +132,13 @@ class TestUserLogin:
 
     @pytest.mark.asyncio
     async def test_login_inactive_user(self, client: AsyncClient, inactive_user: User):
-        """Test login with inactive user account - but since we don't have is_active field, this should succeed."""
+        """
+        Test login with inactive user account - but since we don't have
+        is_active field, this should succeed.
+        """
         login_data = {
             "email": inactive_user.email,
-            "password": inactive_user.plain_password
+            "password": inactive_user.plain_password,
         }
 
         response = await client.post("/api/v1/auth/login", json=login_data)
@@ -163,10 +151,7 @@ class TestUserLogin:
     @pytest.mark.asyncio
     async def test_login_invalid_email_format(self, client: AsyncClient):
         """Test login with invalid email format."""
-        login_data = {
-            "email": "invalid-email",
-            "password": "somepassword"
-        }
+        login_data = {"email": "invalid-email", "password": "somepassword"}
 
         response = await client.post("/api/v1/auth/login", json=login_data)
 
@@ -177,9 +162,13 @@ class TestProtectedEndpoints:
     """Test access to protected endpoints."""
 
     @pytest.mark.asyncio
-    async def test_access_profile_with_valid_token(self, client: AsyncClient, authenticated_user_headers, test_user: User):
+    async def test_access_profile_with_valid_token(
+        self, client: AsyncClient, authenticated_user_headers, test_user: User
+    ):
         """Test accessing user profile with valid JWT token."""
-        response = await client.get("/api/v1/auth/me", headers=authenticated_user_headers)
+        response = await client.get(
+            "/api/v1/auth/me", headers=authenticated_user_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -215,9 +204,13 @@ class TestProtectedEndpoints:
         assert response.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_admin_endpoint_access_as_admin(self, client: AsyncClient, authenticated_admin_headers):
+    async def test_admin_endpoint_access_as_admin(
+        self, client: AsyncClient, authenticated_admin_headers
+    ):
         """Test admin endpoint access with admin user."""
-        response = await client.get("/api/v1/users/", headers=authenticated_admin_headers)
+        response = await client.get(
+            "/api/v1/users/", headers=authenticated_admin_headers
+        )
 
         assert response.status_code == 200
         data = response.json()
@@ -228,103 +221,17 @@ class TestProtectedEndpoints:
         assert "size" in data
 
     @pytest.mark.asyncio
-    async def test_admin_endpoint_access_as_user(self, client: AsyncClient, authenticated_user_headers):
+    async def test_admin_endpoint_access_as_user(
+        self, client: AsyncClient, authenticated_user_headers
+    ):
         """Test admin endpoint access with regular user (should be forbidden)."""
-        response = await client.get("/api/v1/users/", headers=authenticated_user_headers)
+        response = await client.get(
+            "/api/v1/users/", headers=authenticated_user_headers
+        )
 
         assert response.status_code == 403
         data = response.json()
         assert "admin access required" in data["detail"].lower()
-
-
-# class TestPasswordChange:
-#     """Test password change functionality - NOT YET IMPLEMENTED."""
-#
-#     @pytest.mark.asyncio
-#     async def test_change_password_success(self, client: AsyncClient, authenticated_user_headers):
-#         """Test successful password change."""
-#         password_data = {
-#             "current_password": "testpassword123",
-#             "new_password": "newtestpassword123"
-#         }
-#
-#         response = await client.put("/api/v1/auth/change-password",
-#                                  json=password_data,
-#                                  headers=authenticated_user_headers)
-#
-#         assert response.status_code == 200
-#         data = response.json()
-#         assert data["message"] == "Password updated successfully"
-
-#     @pytest.mark.asyncio
-#     async def test_change_password_wrong_current(self, client: AsyncClient, authenticated_user_headers):
-#         """Test password change with wrong current password."""
-#         password_data = {
-#             "current_password": "wrongpassword",
-#             "new_password": "newtestpassword123"
-#         }
-#
-#         response = await client.put("/api/v1/auth/change-password",
-#                                  json=password_data,
-#                                  headers=authenticated_user_headers)
-#
-#         assert response.status_code == 400
-#         data = response.json()
-#         assert "current password is incorrect" in data["detail"].lower()
-#
-#     @pytest.mark.asyncio
-#     async def test_change_password_weak_new_password(self, client: AsyncClient, authenticated_user_headers):
-#         """Test password change with weak new password."""
-#         password_data = {
-#             "current_password": "testpassword123",
-#             "new_password": "123"  # Too short
-#         }
-#
-#         response = await client.put("/api/v1/auth/change-password",
-#                                  json=password_data,
-#                                  headers=authenticated_user_headers)
-#
-#         assert response.status_code == 422
-
-
-# class TestTokenRefresh:
-#     """Test JWT token refresh functionality - NOT YET IMPLEMENTED."""
-
-#     @pytest.mark.asyncio
-#     async def test_refresh_token_success(self, client: AsyncClient, test_user: User):
-#         """Test successful token refresh."""
-#         # First login to get tokens
-#         login_data = {
-#             "email": test_user.email,
-#             "password": test_user.plain_password
-#         }
-#
-#         login_response = await client.post("/api/v1/auth/login", json=login_data)
-#         assert login_response.status_code == 200
-#
-#         login_data_response = login_response.json()
-#         refresh_token = login_data_response["refresh_token"]
-#
-#         # Now refresh the token
-#         refresh_data = {"refresh_token": refresh_token}
-#
-#         response = await client.post("/api/v1/auth/refresh", json=refresh_data)
-#
-#         assert response.status_code == 200
-#         data = response.json()
-#
-#         assert "access_token" in data
-#         assert "refresh_token" in data
-#         assert data["token_type"] == "bearer"
-#
-#     @pytest.mark.asyncio
-#     async def test_refresh_token_invalid(self, client: AsyncClient):
-#         """Test refresh with invalid token."""
-#         refresh_data = {"refresh_token": "invalid_refresh_token"}
-#
-#         response = await client.post("/api/v1/auth/refresh", json=refresh_data)
-#
-#         assert response.status_code == 401
 
 
 class TestPasswordHashing:
@@ -363,11 +270,7 @@ class TestJWTTokens:
     def test_create_and_decode_access_token(self):
         """Test JWT access token creation and decoding."""
         jwt_manager = JWTManager()
-        user_data = {
-            "sub": "123",
-            "email": "test@example.com",
-            "role": "user"
-        }
+        user_data = {"sub": "123", "email": "test@example.com", "role": "user"}
 
         # Create token
         token = jwt_manager.create_access_token(user_data)
@@ -382,11 +285,7 @@ class TestJWTTokens:
     def test_create_and_decode_refresh_token(self):
         """Test JWT refresh token creation and decoding."""
         jwt_manager = JWTManager()
-        user_data = {
-            "sub": "123",
-            "email": "test@example.com",
-            "role": "user"
-        }
+        user_data = {"sub": "123", "email": "test@example.com", "role": "user"}
 
         # Create access token (JWTManager doesn't have separate refresh token method)
         token = jwt_manager.create_access_token(user_data)

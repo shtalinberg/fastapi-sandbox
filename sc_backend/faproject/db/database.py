@@ -1,6 +1,7 @@
 """
 Database configuration and session management.
 """
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -11,8 +12,8 @@ from core.config import settings
 engine = create_async_engine(
     settings.ASYNC_DATABASE_URL,
     echo=settings.DEBUG,  # Log SQL queries in debug mode
-    pool_pre_ping=True,   # Validate connections before use
-    pool_recycle=300,     # Recycle connections every 5 minutes
+    pool_pre_ping=True,  # Validate connections before use
+    pool_recycle=300,  # Recycle connections every 5 minutes
 )
 
 # Create async session maker

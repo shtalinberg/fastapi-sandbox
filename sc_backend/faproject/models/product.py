@@ -1,6 +1,7 @@
 """
 Product model for product management.
 """
+
 from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 
@@ -19,51 +20,38 @@ class Product(Base):
     __tablename__ = "products"
 
     # Basic product info
-    title: Mapped[str] = mapped_column(
-        String(200),
-        nullable=False,
-        index=True
-    )
+    title: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     description: Mapped[str] = mapped_column(Text, nullable=True)
 
     # Pricing
     price: Mapped[Decimal] = mapped_column(
-        Numeric(precision=10, scale=2),
-        nullable=False
+        Numeric(precision=10, scale=2), nullable=False
     )
 
     # External integration
     external_id: Mapped[str] = mapped_column(
-        String(100),
-        unique=True,
-        index=True,
-        nullable=True
+        String(100), unique=True, index=True, nullable=True
     )
 
     # Dimensions
     height: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(precision=8, scale=2),
-        nullable=True
+        Numeric(precision=8, scale=2), nullable=True
     )
     length: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(precision=8, scale=2),
-        nullable=True
+        Numeric(precision=8, scale=2), nullable=True
     )
     depth: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(precision=8, scale=2),
-        nullable=True
+        Numeric(precision=8, scale=2), nullable=True
     )
 
     # User relationship (owner of the product)
     owner_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"),
-        nullable=False,
-        index=True
+        ForeignKey("users.id"), nullable=False, index=True
     )
-    owner: Mapped["User"] = relationship(
-        "User",
-        back_populates="products"
-    )
+    owner: Mapped["User"] = relationship("User", back_populates="products")
 
     def __repr__(self) -> str:
-        return f"<Product(id={self.id}, title='{self.title}', external_id='{self.external_id}')>"
+        return (
+            f"<Product(id={self.id}, title='{self.title}', "
+            f"external_id='{self.external_id}')>"
+        )

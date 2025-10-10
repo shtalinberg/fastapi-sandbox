@@ -1,6 +1,7 @@
 """
 User model for authentication and user management.
 """
+
 from enum import Enum
 from typing import TYPE_CHECKING, List
 
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
 
 class UserRole(str, Enum):
     """User roles enumeration."""
+
     ADMIN = "admin"
     USER = "user"
 
@@ -26,10 +28,7 @@ class User(Base):
 
     # Basic user info
     email: Mapped[str] = mapped_column(
-        String(255),
-        unique=True,
-        index=True,
-        nullable=False
+        String(255), unique=True, index=True, nullable=False
     )
 
     # Authentication
@@ -37,16 +36,12 @@ class User(Base):
 
     # Role
     role: Mapped[UserRole] = mapped_column(
-        String(20),
-        default=UserRole.USER,
-        nullable=False
+        String(20), default=UserRole.USER, nullable=False
     )
 
     # Relationships
     products: Mapped[List["Product"]] = relationship(
-        "Product",
-        back_populates="owner",
-        cascade="all, delete-orphan"
+        "Product", back_populates="owner", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

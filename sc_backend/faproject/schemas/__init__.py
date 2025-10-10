@@ -20,7 +20,6 @@ __all__ = [
     "UserResponse",
     "PasswordChangeRequest",
     "TokenPayload",
-
     # User schemas
     "UserBase",
     "UserCreate",

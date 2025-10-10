@@ -2,11 +2,11 @@
 # Python 3.13 compatible versions - Updated October 2025
 
 # FastAPI and related
-fastapi==0.118.1
+fastapi==0.118.2
 uvicorn==0.37.0
-pydantic==2.11.7
-pydantic_core==2.33.2
-pydantic-settings==2.10.1
+pydantic==2.12.0
+pydantic_core==2.41.1
+pydantic-settings==2.11.0
 
 # Database & ORM
 sqlalchemy==2.0.43
@@ -28,4 +28,4 @@ httpx==0.28.1
 # Utilities
 python-dateutil==2.9.0.post0
 email-validator==2.3.0
-sentry-sdk[fastapi]==2.35.0
+sentry-sdk[fastapi]==2.41.0

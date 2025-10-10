@@ -1,6 +1,7 @@
 """
 Base model class with common fields and functionality.
 """
+
 from datetime import datetime
 from typing import Any
 
@@ -15,22 +16,18 @@ class Base(DeclarativeBase):
 
     __abstract__ = True
 
-    metadata = MetaData(
-        naming_convention=settings.DB_NAMING_CONVENTION
-    )
+    metadata = MetaData(naming_convention=settings.DB_NAMING_CONVENTION)
 
     # Common fields for all models
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False
+        nullable=False,
     )
 
     def __repr__(self) -> str:
@@ -40,6 +37,5 @@ class Base(DeclarativeBase):
     def to_dict(self) -> dict[str, Any]:
         """Convert model to dictionary."""
         return {
-            column.name: getattr(self, column.name)
-            for column in self.__table__.columns
+            column.name: getattr(self, column.name) for column in self.__table__.columns
         }

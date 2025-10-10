@@ -1,6 +1,7 @@
 """
 Database module initialization.
 """
+
 from models.base import Base
 from .database import SessionLocal, engine
 

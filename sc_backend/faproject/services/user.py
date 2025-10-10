@@ -1,6 +1,7 @@
 """
 User service for database operations.
 """
+
 from typing import List, Optional
 
 from sqlalchemy import func, select
@@ -20,16 +21,12 @@ class UserService:
 
     async def get_user_by_id(self, user_id: int) -> Optional[User]:
         """Get user by ID."""
-        result = await self.db.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await self.db.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
 
     async def get_user_by_email(self, email: str) -> Optional[User]:
         """Get user by email."""
-        result = await self.db.execute(
-            select(User).where(User.email == email)
-        )
+        result = await self.db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
     async def create_user(self, user_data: UserCreate) -> User:
@@ -39,9 +36,7 @@ class UserService:
 
         # Create user instance
         db_user = User(
-            email=user_data.email,
-            password=hashed_password,
-            role=user_data.role
+            email=user_data.email, password=hashed_password, role=user_data.role
         )
 
         try:
@@ -84,10 +79,7 @@ class UserService:
         return True
 
     async def list_users(
-        self,
-        skip: int = 0,
-        limit: int = 10,
-        role_filter: Optional[UserRole] = None
+        self, skip: int = 0, limit: int = 10, role_filter: Optional[UserRole] = None
     ) -> tuple[List[User], int]:
         """Get paginated list of users."""
         # Build query
@@ -122,7 +114,9 @@ class UserService:
         await self.db.refresh(user)
         return user
 
-    async def is_email_taken(self, email: str, exclude_user_id: Optional[int] = None) -> bool:
+    async def is_email_taken(
+        self, email: str, exclude_user_id: Optional[int] = None
+    ) -> bool:
         """Check if email is already taken by another user."""
         query = select(User).where(User.email == email)
 

@@ -22,7 +22,6 @@ __all__ = [
     "create_access_token",
     "verify_token",
     "get_token_expires_in",
-
     # User services
     "UserService",
 ]

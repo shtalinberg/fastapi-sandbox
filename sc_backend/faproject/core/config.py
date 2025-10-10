@@ -1,7 +1,7 @@
 """
 Core configuration settings for FastAPI application.
 """
-from typing import Optional
+
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,9 +11,7 @@ class Settings(BaseSettings):
     """Application settings."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_ignore_empty=True,
-        extra="ignore"
+        env_file=".env", env_ignore_empty=True, extra="ignore"
     )
 
     # Project info
@@ -23,10 +21,16 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = Field(
-        default="postgresql+psycopg://fasandbox_user:fasandbox_pass@postgres:5432/fasandbox_db"
+        default=(
+            "postgresql+psycopg://fasandbox_user:fasandbox_pass@postgres:5432/"
+            "fasandbox_db"
+        )
     )
     ASYNC_DATABASE_URL: str = Field(
-        default="postgresql+psycopg://fasandbox_user:fasandbox_pass@postgres:5432/fasandbox_db"
+        default=(
+            "postgresql+psycopg://fasandbox_user:fasandbox_pass@postgres:5432/"
+            "fasandbox_db"
+        )
     )
 
     # Redis
@@ -46,13 +50,15 @@ class Settings(BaseSettings):
     SYNC_INTERVAL_MINUTES: int = Field(default=60)
 
     # Database naming convention for constraints
-    DB_NAMING_CONVENTION: dict[str, str] = Field(default={
-        "ix": "ix_%(column_0_label)s",
-        "uq": "uq_%(table_name)s_%(column_0_name)s",
-        "ck": "ck_%(table_name)s_%(constraint_name)s",
-        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s"
-    })
+    DB_NAMING_CONVENTION: dict[str, str] = Field(
+        default={
+            "ix": "ix_%(column_0_label)s",
+            "uq": "uq_%(table_name)s_%(column_0_name)s",
+            "ck": "ck_%(table_name)s_%(constraint_name)s",
+            "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+            "pk": "pk_%(table_name)s",
+        }
+    )
 
 
 # Global settings instance
