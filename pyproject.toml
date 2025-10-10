@@ -29,7 +29,7 @@ extend-exclude = '''
   # directories
   \.eggs
   | \.git
-
+  | \.mypy_cache
   | \.venv
   | build
 
@@ -49,9 +49,6 @@ known_third_party = ["pydantic", "celery", "redis"]
 sections = ["FUTURE","STDLIB","THIRDPARTY","FASTAPI","SQLALCHEMY","FIRSTPARTY","LOCALFOLDER"]
 no_lines_before = "LOCALFOLDER"
 src_paths = ["sc_backend/faproject"]
-
-
-
 
 [tool.pytest.ini_options]
 minversion = "7.0"

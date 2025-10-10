@@ -1,3 +1,3 @@
 [flake8]
 max-line-length = 88
-extend-exclude = .eggs/, .git/, .venv/, build/
+extend-exclude = .eggs/, .git/, .mypy_cache/, .venv/, build/
